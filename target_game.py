@@ -1,4 +1,6 @@
 """The game of target."""
+import random
+import string
 from typing import List
 
 
@@ -7,7 +9,8 @@ def generate_grid() -> List[List[str]]:
     Generates list of lists of letters - i.e. grid for the game.
     e.g. [['I', 'G', 'E'], ['P', 'I', 'S'], ['W', 'M', 'G']]
     """
-    pass
+    letters = [random.choice(string.ascii_uppercase) for _ in range(9)]
+    return [letters[i : i + 3] for i in range(0, len(letters), 3)]
 
 
 def get_words(path: str, letters: List[str]) -> List[str]:
@@ -18,6 +21,8 @@ def get_words(path: str, letters: List[str]) -> List[str]:
     with open(path, "r", encoding="utf-8") as file:
         all_words = set(file.read().split("\n"))
     # Check the words with rules
+    # Prepare the words (lowercase)
+    all_words = {word.lower() for word in all_words}
     # 1. The word must contain at least 4 letters
     all_words = {word for word in all_words if len(word) >= 4}
     # 2. The word must contain the central letter
@@ -43,7 +48,7 @@ def get_user_words() -> List[str]:
     output = []
     while True:
         try:
-            word = input()
+            word = input().lower()
         except EOFError:
             break
         else:
@@ -60,7 +65,21 @@ def get_pure_user_words(
     Checks user words with the rules and returns list of those words
     that are not in dictionary.
     """
-    pass
+    # 1. The word must contain at least 4 letters
+    words = {word for word in user_words if len(word) >= 4}
+    # 2. The word must contain the central letter
+    central = letters[len(letters) // 2]
+    words = {word for word in words if central in word}
+    # 3. The word must only contain the letters in the grid
+    # (and at most as many of each letter as there are in the grid)
+    words = {
+        word
+        for word in words
+        if all(word.count(letter) <= letters.count(letter) for letter in word)
+    }
+    # 4. The word must not be in the dictionary
+    words = {word for word in words if word not in words_from_dict}
+    return list(words)
 
 
 def results():
