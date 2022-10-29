@@ -10,11 +10,27 @@ def generate_grid() -> List[List[str]]:
     pass
 
 
-def get_words(f: str, letters: List[str]) -> List[str]:
+def get_words(path: str, letters: List[str]) -> List[str]:
     """
-    Reads the file f. Checks the words with rules and returns a list of words.
+    Reads the dictionary. Checks the words with rules and returns a list of words.
     """
-    pass
+    # Read the dictionary file
+    with open(path, "r", encoding="utf-8") as file:
+        all_words = set(file.read().split("\n"))
+    # Check the words with rules
+    # 1. The word must contain at least 4 letters
+    all_words = {word for word in all_words if len(word) >= 4}
+    # 2. The word must contain the central letter
+    central = letters[len(letters) // 2]
+    all_words = {word for word in all_words if central in word}
+    # 3. The word must only contain the letters in the grid
+    # (and at most as many of each letter as there are in the grid)
+    all_words = {
+        word
+        for word in all_words
+        if all(word.count(letter) <= letters.count(letter) for letter in word)
+    }
+    return list(all_words)
 
 
 def get_user_words() -> List[str]:
