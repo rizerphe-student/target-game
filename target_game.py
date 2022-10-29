@@ -40,7 +40,15 @@ def get_user_words() -> List[str]:
     for Windows.
     Note: the user presses the enter key after entering each word.
     """
-    pass
+    output = []
+    while True:
+        try:
+            word = input()
+        except EOFError:
+            break
+        else:
+            output.append(word)
+    return output
 
 
 def get_pure_user_words(
