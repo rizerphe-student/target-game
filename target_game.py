@@ -83,4 +83,34 @@ def get_pure_user_words(
 
 
 def results():
-    pass
+    """Prints the results of the game.
+
+    1. Generate the grid
+    2. Show the grid
+    3. Get the words from the user
+    4. Show all possible words
+    5. Show the words that the user entered
+    6. Show the words that are not in the dictionary
+    7. Save the summary to results.txt
+    """
+    grid = generate_grid()
+    for row in grid:
+        print(" ".join(row))
+    user_words = get_user_words()
+
+    letters = sum(grid, start=[])
+    letters = [letter.lower() for letter in letters]
+
+    dictionary = get_words("en", letters)
+    str_dict = ", ".join(dictionary)
+    summary = f"Possible words: {str_dict}\n"
+    str_user_words = ", ".join(user_words)
+    summary += f"User words: {str_user_words}\n"
+    pure_user_words = get_pure_user_words(user_words, letters, dictionary)
+    str_pure_user_words = ", ".join(pure_user_words)
+    summary += f"Pure user words: {str_pure_user_words}\n"
+
+    with open("results.txt", "w", encoding="utf-8") as file:
+        file.write(summary)
+
+    print(summary)
