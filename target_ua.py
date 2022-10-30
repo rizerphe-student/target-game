@@ -79,7 +79,11 @@ def check_user_words(
         if dict_entries:
             if any(part == language_part for _, part in dict_entries):
                 correct_words.append(word)
-    missed_words = [word for word, _ in dict_of_words if word not in correct_words]
+    missed_words = [
+        word
+        for word, part in dict_of_words
+        if word not in correct_words and part == language_part
+    ]
     return correct_words, missed_words
 
 
