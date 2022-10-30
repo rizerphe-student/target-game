@@ -15,6 +15,19 @@ def generate_grid() -> List[str]:
 def get_words(path: str, letters: List[str]) -> List[tuple[str, str]]:
     """
     Reads the dictionary. Checks the words with rules and returns a list of words.
+
+    >>> ", ".join(word for word, _ in get_words("base.lst", ['й', 'є', 'ю']))
+    'йняти, йог, йога, йод, йодат, """\
+            """йодид, йодил, йодит, йодль, йола, йолоп, """\
+            """йомен, йон, йорж, йот, йота, йти, йтися, юань, """\
+            """юга, югурт, юда, юдей, юдин, юдоль, юзом, юка, """\
+            """юкола, юнак, юнга, юний, юнка, юнкер, юнкор, """\
+            """юннат, юнь, юніор, юпка, юра, юрба, юре, юрик, """\
+            """юрист, юрма, юрода, юрок, юрта, юрфак, юс, ют, """\
+            """ютуб, юферс, юхта, юшити, юшка, ююба, юїтка, """\
+            """євнух, єврей, євро, єгер, єдваб, єзуїт, єлей, """\
+            """ємний, ємно, єна, єнот, єпарх, єресь, єри, єрик, """\
+            """єство, єті, єхида'
     """
     # Read the dictionary file
     with open(path, "r", encoding="utf-8") as file:
@@ -67,7 +80,11 @@ def check_user_words(
     dict_of_words: List[tuple[str, str]],
 ) -> tuple[List[str], List[str]]:
     """Check the given words against a dictionary
-    and returns a tuple of two lists: correct and missed words."""
+    and returns a tuple of two lists: correct and missed words.
+
+    >>> check_user_words(["йти"], "verb", ["й"], get_words("base.lst", ["й"]))
+    (['йти'], ['йняти', 'йтися'])
+    """
     user_words = [
         word
         for word in user_words
