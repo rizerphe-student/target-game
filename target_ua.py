@@ -1,6 +1,6 @@
 """The game of target: the Ukrainian version."""
 import random
-from typing import List
+from typing import List, Literal
 
 
 def generate_grid() -> List[str]:
@@ -60,61 +60,49 @@ def get_user_words() -> List[str]:
     return output
 
 
-def get_pure_user_words(
-    user_words: List[str], letters: List[str], words_from_dict: List[str]
-) -> List[str]:
-    """
-    (list, list, list) -> list
-
-    Checks user words with the rules and returns list of those words
-    that are not in dictionary.
-    """
-    # 1. The word must contain at least 4 letters
-    words = {word for word in user_words if len(word) >= 4}
-    # 2. The word must contain the central letter
-    central = letters[len(letters) // 2]
-    words = {word for word in words if central in word}
-    # 3. The word must only contain the letters in the grid
-    # (and at most as many of each letter as there are in the grid)
-    words = {
+def check_user_words(
+    user_words: List[str],
+    language_part: Literal["noun", "verb", "adjective", "adverb"],
+    letters: List[str],
+    dict_of_words: List[tuple[str, str]],
+) -> tuple[List[str], List[str]]:
+    """Check the given words against a dictionary
+    and returns a tuple of two lists: correct and missed words."""
+    user_words = [
         word
-        for word in words
-        if all(word.count(letter) <= letters.count(letter) for letter in word)
-    }
-    # 4. The word must not be in the dictionary
-    words = {word for word in words if word not in words_from_dict}
-    return list(words)
+        for word in user_words
+        if any(word.startswith(letter) for letter in letters)
+    ]
+    correct_words = []
+    for word in user_words:
+        dict_entries = [entry for entry in dict_of_words if entry[0] == word]
+        if dict_entries:
+            if any(part == language_part for _, part in dict_entries):
+                correct_words.append(word)
+    missed_words = [word for word, _ in dict_of_words if word not in correct_words]
+    return correct_words, missed_words
 
 
 def results():
-    """Prints the results of the game.
+    """Play the game
 
-    1. Generate the grid
-    2. Show the grid
-    3. Get the words from the user
-    4. Show all possible words
-    5. Show the words that the user entered
-    6. Show the words that are not in the dictionary
-    7. Save the summary to results.txt
+    1. Generate the letters
+    2. Generate the language part
+    3. Ask user for input
+    4. Output the summary
     """
-    grid = generate_grid()
-    for row in grid:
-        print(" ".join(row))
+    letters = generate_grid()
+    language_part = random.choice(["noun", "verb", "adjective", "adverb"])
+    print(f"Letters: {' '.join(letters)}")
+    print(f"Language part: {language_part}")
+    dict_of_words = get_words("base.lst", letters)
     user_words = get_user_words()
+    correct_words, missed_words = check_user_words(
+        user_words, language_part, letters, dict_of_words
+    )
+    print(f"Correct words: {', '.join(correct_words)}")
+    print(f"Missed words: {', '.join(missed_words)}")
 
-    letters = sum(grid, start=[])
-    letters = [letter.lower() for letter in letters]
 
-    dictionary = get_words("en", letters)
-    str_dict = ", ".join(dictionary)
-    summary = f"Possible words: {str_dict}\n"
-    str_user_words = ", ".join(user_words)
-    summary += f"User words: {str_user_words}\n"
-    pure_user_words = get_pure_user_words(user_words, letters, dictionary)
-    str_pure_user_words = ", ".join(pure_user_words)
-    summary += f"Pure user words: {str_pure_user_words}\n"
-
-    with open("results.txt", "w", encoding="utf-8") as file:
-        file.write(summary)
-
-    print(summary)
+if __name__ == "__main__":
+    results()
